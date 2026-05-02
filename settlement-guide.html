@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KSAN — 정착 가이드</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=JetBrains+Mono:wght@500;700&display=swap" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" src="shared.jsx"></script>
+  <script type="text/babel" src="landing.jsx"></script>
+  <script type="text/babel" src="pages.jsx"></script>
+  <script type="text/babel">
+    const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+      "accent": "#FF6A2A",
+      "fontPair": "classic",
+      "sectionTone": "sand",
+      "density": "regular",
+      "motion": "full",
+      "showStats": true
+    }/*EDITMODE-END*/;
+
+    function App() {
+      const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+      const [signupOpen, setSignupOpen] = React.useState(false);
+      const [loginOpen, setLoginOpen] = React.useState(false);
+      const rootRef = React.useRef(null);
+
+      React.useEffect(() => { applyTweaks(t); }, [t]);
+      useReveal(rootRef);
+
+      return (
+        <div ref={rootRef}>
+          <MagneticCursor enabled={t.motion !== 'off'} />
+          <Nav current="guide" onOpenSignup={() => setSignupOpen(true)} onOpenLogin={() => setLoginOpen(true)} />
+          <main>
+            <SettlementGuide />
+            <Newsletter />
+          </main>
+          <Footer />
+          <Modal open={signupOpen} onClose={() => setSignupOpen(false)} maxWidth={460}>
+            <SignupForm onClose={() => setSignupOpen(false)} />
+          </Modal>
+          <Modal open={loginOpen} onClose={() => setLoginOpen(false)} maxWidth={420}>
+            <LoginForm onClose={() => setLoginOpen(false)} onSwitchToSignup={() => { setLoginOpen(false); setSignupOpen(true); }} />
+          </Modal>
+          <KsanTweaks t={t} setTweak={setTweak} />
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
